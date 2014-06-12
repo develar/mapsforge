@@ -29,12 +29,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.mapsforge.core.graphics.Bitmap;
-import org.mapsforge.core.mapelements.MapElementContainer;
-import org.mapsforge.core.graphics.Position;
 import org.mapsforge.core.graphics.GraphicFactory;
 import org.mapsforge.core.graphics.Paint;
-import org.mapsforge.core.mapelements.SymbolContainer;
+import org.mapsforge.core.graphics.Position;
 import org.mapsforge.core.graphics.TileBitmap;
+import org.mapsforge.core.mapelements.MapElementContainer;
+import org.mapsforge.core.mapelements.SymbolContainer;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.Point;
 import org.mapsforge.core.model.Tag;
@@ -53,8 +53,6 @@ import org.mapsforge.map.rendertheme.XmlRenderTheme;
 import org.mapsforge.map.rendertheme.rule.RenderTheme;
 import org.mapsforge.map.rendertheme.rule.RenderThemeHandler;
 import org.mapsforge.map.util.LayerUtil;
-import org.xmlpull.v1.XmlPullParserException;
-
 
 /**
  * The DatabaseRenderer renders map tiles by reading from a {@link MapDatabase}.
@@ -106,7 +104,7 @@ public class DatabaseRenderer implements RenderCallback {
 	private final boolean renderLabels;
 	private RenderTheme renderTheme;
 	private List<List<List<ShapePaintContainer>>> ways;
-	private final TileCache tileCache;
+	private final TileCacheInfoProvider tileCacheInfoProvider;
 	private final TileDependencies tileDependencies;
 
 	/**
@@ -124,27 +122,41 @@ public class DatabaseRenderer implements RenderCallback {
 		this.canvasRasterer = new CanvasRasterer(graphicFactory);
 		this.labelStore = labelStore;
 		this.renderLabels = false;
-		this.tileCache = null;
+		this.tileCacheInfoProvider = null;
 		this.tileDependencies = null;
 	}
 
 	/**
 	 * Constructs a new DatabaseRenderer that will draw labels onto the tiles.
 	 *
-	 * @param mapDatabase
-	 *            the MapDatabase from which the map data will be read.
-	 */
-	public DatabaseRenderer(MapDatabase mapDatabase, GraphicFactory graphicFactory,
-	                        TileCache tileCache) {
-		this.mapDatabase = mapDatabase;
-		this.graphicFactory = graphicFactory;
+     * @param mapDatabase
+     *            the MapDatabase from which the map data will be read.
+     */
+    public DatabaseRenderer(MapDatabase mapDatabase, GraphicFactory graphicFactory,
+                            final TileCache tileCache) {
+        this(mapDatabase, graphicFactory, new TileCacheInfoProvider() {
+            @Override
+            public boolean contains(Tile tile, RendererJob rendererJob) {
+                return tileCache.containsKey(rendererJob.otherTile(tile));
+            }
+        });
+    }
 
-		this.canvasRasterer = new CanvasRasterer(graphicFactory);
-		this.labelStore = null;
-		this.renderLabels = true;
-		this.tileCache = tileCache;
-		this.tileDependencies = new TileDependencies();
-	}
+    public DatabaseRenderer(MapDatabase mapDatabase, GraphicFactory graphicFactory,
+                            final TileCacheInfoProvider tileCacheInfoProvider) {
+        this.mapDatabase = mapDatabase;
+        this.graphicFactory = graphicFactory;
+
+        this.canvasRasterer = new CanvasRasterer(graphicFactory);
+        this.labelStore = null;
+        this.renderLabels = true;
+        this.tileCacheInfoProvider = tileCacheInfoProvider;
+        this.tileDependencies = new TileDependencies();
+    }
+
+    public interface TileCacheInfoProvider {
+        public boolean contains(Tile tile, RendererJob rendererJob);
+    }
 
 
 	public void destroy() {
@@ -217,7 +229,7 @@ public class DatabaseRenderer implements RenderCallback {
 			Set<MapElementContainer> undrawableElements = new HashSet<MapElementContainer>();
 			while (tileIterator.hasNext()) {
 				Tile neighbour = tileIterator.next();
-				if (tileCache.containsKey(rendererJob.otherTile(neighbour))) {
+				if (tileCacheInfoProvider.contains(neighbour, rendererJob)) {
 					// if a tile has already been drawn, the elements drawn that overlap onto the
 					// current tile should be in the tile dependencies, we add them to the labels that
 					// need to be drawn onto this tile.

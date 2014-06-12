@@ -160,7 +160,7 @@ public class Tile implements Serializable {
 		if (x < 0) {
 			x = getMaxTileNumber(this.zoomLevel);
 		}
-		return new Tile(x, this.tileY, this.zoomLevel, this.tileSize);
+		return createNeighbourTile(this.tileY, x);
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class Tile implements Serializable {
 		if (x > getMaxTileNumber(this.zoomLevel)) {
 			x = 0;
 		}
-		return new Tile(x, this.tileY, this.zoomLevel, this.tileSize);
+		return createNeighbourTile(this.tileY, x);
 	}
 
 	public Tile getAbove() {
@@ -180,7 +180,7 @@ public class Tile implements Serializable {
 		if (y < 0) {
 			y = getMaxTileNumber(this.zoomLevel);
 		}
-		return new Tile(this.tileX, y, this.zoomLevel, this.tileSize);
+		return createNeighbourTile(y, this.tileX);
 	}
 
 	public Tile getBelow() {
@@ -188,7 +188,7 @@ public class Tile implements Serializable {
 		if (y > getMaxTileNumber(this.zoomLevel)) {
 			y = 0;
 		}
-		return new Tile(this.tileX, y, this.zoomLevel, this.tileSize);
+		return createNeighbourTile(y, this.tileX);
 	}
 
 	public Tile getAboveLeft() {
@@ -200,7 +200,7 @@ public class Tile implements Serializable {
 		if (x < 0) {
 			x = getMaxTileNumber(this.zoomLevel);
 		}
-		return new Tile(x, y, this.zoomLevel, this.tileSize);
+		return createNeighbourTile(y, x);
 	}
 
 	public Tile getAboveRight() {
@@ -212,7 +212,7 @@ public class Tile implements Serializable {
 		if (x > getMaxTileNumber(this.zoomLevel)) {
 			x = 0;
 		}
-		return new Tile(x, y, this.zoomLevel, this.tileSize);
+		return createNeighbourTile(y, x);
 	}
 
 	public Tile getBelowLeft() {
@@ -224,19 +224,23 @@ public class Tile implements Serializable {
 		if (x < 0) {
 			x = getMaxTileNumber(this.zoomLevel);
 		}
-		return new Tile(x, y, this.zoomLevel, this.tileSize);
+		return createNeighbourTile(y, x);
 	}
+ 
+	protected Tile createNeighbourTile(int y, int x) {
+        return new Tile(x, y, this.zoomLevel, this.tileSize);
+    }
 
-	public Tile getBelowRight() {
+    public Tile getBelowRight() {
 		int y = tileY + 1;
-		int x = tileX + 1;
+	    int x = tileX + 1;
 		if (y > getMaxTileNumber(this.zoomLevel)) {
 			y = 0;
 		}
 		if (x > getMaxTileNumber(this.zoomLevel)) {
 			x = 0;
 		}
-		return new Tile(x, y, this.zoomLevel, this.tileSize);
+		return createNeighbourTile(y, x);
 	}
 
 	/**
