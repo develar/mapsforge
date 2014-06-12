@@ -15,14 +15,13 @@
  */
 package org.mapsforge.map.awt;
 
+import org.mapsforge.core.graphics.Bitmap;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import javax.imageio.ImageIO;
-
-import org.mapsforge.core.graphics.Bitmap;
 
 class AwtBitmap implements Bitmap {
 	final BufferedImage bufferedImage;
@@ -35,8 +34,12 @@ class AwtBitmap implements Bitmap {
 	}
 
 	AwtBitmap(int width, int height) {
-		this.bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		this(width, height, true);
 	}
+
+  AwtBitmap(int width, int height, boolean hasAlpha) {
+    this.bufferedImage = new BufferedImage(width, height, hasAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
+  }
 
 	@Override
 	public void compress(OutputStream outputStream) throws IOException {
