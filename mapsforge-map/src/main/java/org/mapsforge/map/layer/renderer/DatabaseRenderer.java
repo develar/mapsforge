@@ -173,19 +173,7 @@ public class DatabaseRenderer implements RenderCallback {
 		}
 	}
 
-	/**
-	 * Called when a job needs to be executed.
-	 * 
-	 * @param rendererJob
-	 *            the job that should be executed.
-	 */
 	public TileBitmap executeJob(RendererJob rendererJob) {
-		final int tileSize = rendererJob.tile.tileSize;
-		final byte zoomLevel = rendererJob.tile.zoomLevel;
-
-		this.currentLabels = new LinkedList<MapElementContainer>();
-		this.currentWayLabels = new HashSet<MapElementContainer>();
-
 		XmlRenderTheme jobTheme = rendererJob.xmlRenderTheme;
 		if (!jobTheme.equals(this.previousJobTheme)) {
 			this.renderTheme = getRenderTheme(jobTheme, rendererJob.displayModel);
@@ -197,23 +185,43 @@ public class DatabaseRenderer implements RenderCallback {
 			this.previousJobTheme = jobTheme;
 		}
 
+		return renderTile(rendererJob.tile, rendererJob.textScale, rendererJob.labelsOnly, rendererJob.hasAlpha, rendererJob.displayModel, rendererJob);
+	}
+
+	public void setRenderTheme(RenderTheme renderTheme) {
+		if (this.renderTheme != renderTheme) {
+			this.renderTheme = renderTheme;
+			this.ways = createWayLists();
+		}
+	}
+
+	public TileBitmap renderTile(Tile tile, float textScale, boolean labelsOnly, boolean hasAlpha, DisplayModel displayModel) {
+		return renderTile(tile, textScale, labelsOnly, hasAlpha, displayModel, null);
+	}
+
+	private TileBitmap renderTile(Tile tile, float textScale, boolean labelsOnly, boolean hasAlpha, DisplayModel displayModel, RendererJob rendererJob) {
+		final int tileSize = tile.tileSize;
+		final byte zoomLevel = tile.zoomLevel;
+
+		this.currentLabels = new LinkedList<MapElementContainer>();
+		this.currentWayLabels = new HashSet<MapElementContainer>();
+
 		setScaleStrokeWidth(zoomLevel);
-		this.renderTheme.scaleTextSize(rendererJob.textScale);
+		this.renderTheme.scaleTextSize(textScale);
 
 		if (this.mapDatabase != null) {
-			MapReadResult mapReadResult = this.mapDatabase.readMapData(rendererJob.tile);
-			processReadMapData(ways, mapReadResult, rendererJob.tile);
+			MapReadResult mapReadResult = this.mapDatabase.readMapData(tile);
+			processReadMapData(ways, mapReadResult, tile);
 		}
 
 		TileBitmap bitmap = null;
-		if (!rendererJob.labelsOnly) {
-			bitmap = this.graphicFactory.createTileBitmap(tileSize,
-					rendererJob.hasAlpha);
+		if (!labelsOnly) {
+			bitmap = this.graphicFactory.createTileBitmap(tileSize, hasAlpha);
 			this.canvasRasterer.setCanvasBitmap(bitmap);
-			if (rendererJob.displayModel.getBackgroundColor() != this.renderTheme.getMapBackground()) {
-				this.canvasRasterer.fill(rendererJob.hasAlpha ? 0 : this.renderTheme.getMapBackground());
+			if (displayModel.getBackgroundColor() != this.renderTheme.getMapBackground()) {
+				this.canvasRasterer.fill(hasAlpha ? 0 : this.renderTheme.getMapBackground());
 			}
-			this.canvasRasterer.drawWays(ways, rendererJob.tile);
+			this.canvasRasterer.drawWays(ways, tile);
 		}
 
 		if (renderLabels) {
@@ -224,7 +232,7 @@ public class DatabaseRenderer implements RenderCallback {
 			// first we need to get the labels from the adjacent tiles if they have already been drawn
 			// as those overlapping items must also be drawn on the current tile. They must be drawn regardless
 			// of priority clashes as a part of them has alread been drawn.
-			Set<Tile> neighbours = rendererJob.tile.getNeighbours();
+			Set<Tile> neighbours = tile.getNeighbours();
 			Iterator<Tile> tileIterator = neighbours.iterator();
 			Set<MapElementContainer> undrawableElements = new HashSet<MapElementContainer>();
 			while (tileIterator.hasNext()) {
@@ -233,7 +241,7 @@ public class DatabaseRenderer implements RenderCallback {
 					// if a tile has already been drawn, the elements drawn that overlap onto the
 					// current tile should be in the tile dependencies, we add them to the labels that
 					// need to be drawn onto this tile.
-					labelsToDraw.addAll(tileDependencies.getOverlappingElements(neighbour, rendererJob.tile));
+					labelsToDraw.addAll(tileDependencies.getOverlappingElements(neighbour, tile));
 
 					// but we need to remove the labels for this tile that overlap onto a tile that has been drawn
 					for (MapElementContainer current : currentLabels) {
@@ -275,20 +283,20 @@ public class DatabaseRenderer implements RenderCallback {
 
 			// update dependencies, add to the dependencies list all the elements that overlap to the
 			// neighbouring tiles, first clearing out the cache for this relation.
-			for (Tile tile : neighbours) {
-				tileDependencies.removeTileData(rendererJob.tile, tile);
+			for (Tile neighbour : neighbours) {
+				tileDependencies.removeTileData(neighbour, neighbour);
 				for (MapElementContainer element : labelsToDraw) {
-					if (element.intersects(tile.getBoundaryAbsolute())) {
-						tileDependencies.addOverlappingElement(rendererJob.tile, tile, element);
+					if (element.intersects(neighbour.getBoundaryAbsolute())) {
+						tileDependencies.addOverlappingElement(neighbour, neighbour, element);
 					}
 				}
 			}
 			// now draw the ways and the labels
-			this.canvasRasterer.drawMapElements(currentWayLabels, rendererJob.tile);
-			this.canvasRasterer.drawMapElements(labelsToDraw, rendererJob.tile);
+			this.canvasRasterer.drawMapElements(currentWayLabels, tile);
+			this.canvasRasterer.drawMapElements(labelsToDraw, tile);
 		} else {
 			// store elements for this tile in the label cache
-			this.labelStore.storeMapItems(rendererJob.tile, this.currentLabels);
+			this.labelStore.storeMapItems(tile, this.currentLabels);
 		}
 
 		// clear way list
