@@ -16,22 +16,30 @@
  */
 package org.mapsforge.map.awt;
 
-import org.mapsforge.core.graphics.*;
-import org.mapsforge.core.graphics.Canvas;
-import org.mapsforge.core.graphics.Color;
-import org.mapsforge.core.graphics.Paint;
-import org.mapsforge.core.mapelements.PointTextContainer;
-import org.mapsforge.core.mapelements.SymbolContainer;
-import org.mapsforge.core.model.Point;
-
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public final class AwtGraphicFactory implements GraphicFactory {
+import org.mapsforge.core.graphics.Bitmap;
+import org.mapsforge.core.graphics.Canvas;
+import org.mapsforge.core.graphics.Color;
+import org.mapsforge.core.graphics.GraphicContext;
+import org.mapsforge.core.graphics.GraphicFactory;
+import org.mapsforge.core.graphics.Matrix;
+import org.mapsforge.core.graphics.Paint;
+import org.mapsforge.core.graphics.Path;
+import org.mapsforge.core.mapelements.PointTextContainer;
+import org.mapsforge.core.graphics.Position;
+import org.mapsforge.core.graphics.ResourceBitmap;
+import org.mapsforge.core.mapelements.SymbolContainer;
+import org.mapsforge.core.graphics.TileBitmap;
+import org.mapsforge.core.model.Point;
+
+public class AwtGraphicFactory implements GraphicFactory {
 	public static final GraphicFactory INSTANCE = new AwtGraphicFactory();
 	private static final java.awt.Color TRANSPARENT = new java.awt.Color(0, 0, 0, 0);
 
@@ -51,7 +59,7 @@ public final class AwtGraphicFactory implements GraphicFactory {
 		return (AwtPath) path;
 	}
 
-	public static BufferedImage getBufferedImage(Bitmap bitmap) {
+	static BufferedImage getBufferedImage(Bitmap bitmap) {
 		return ((AwtBitmap) bitmap).bufferedImage;
 	}
 
@@ -72,9 +80,6 @@ public final class AwtGraphicFactory implements GraphicFactory {
 		}
 
 		throw new IllegalArgumentException("unknown color: " + color);
-	}
-
-	private AwtGraphicFactory() {
 	}
 
 	@Override

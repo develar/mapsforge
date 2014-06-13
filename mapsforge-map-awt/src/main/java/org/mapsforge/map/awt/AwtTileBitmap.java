@@ -15,10 +15,11 @@
  */
 package org.mapsforge.map.awt;
 
-import org.mapsforge.core.graphics.TileBitmap;
-
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.mapsforge.core.graphics.TileBitmap;
 
 public class AwtTileBitmap extends AwtBitmap implements TileBitmap {
 
@@ -30,7 +31,11 @@ public class AwtTileBitmap extends AwtBitmap implements TileBitmap {
 		super(tileSize, tileSize);
 	}
 
-  public AwtTileBitmap(int tileSize, boolean hasAlpha) {
-    super(tileSize, tileSize, hasAlpha);
-  }
+	public AwtTileBitmap(int tileSize, boolean hasAlpha) {
+		super(tileSize, tileSize, hasAlpha);
+	}
+
+	public AwtTileBitmap(BufferedImage bufferedImage) {
+		super(bufferedImage);
+	}
 }
