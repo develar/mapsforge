@@ -29,8 +29,8 @@ import org.mapsforge.map.rendertheme.renderinstruction.RenderInstruction;
 
 abstract class Rule {
 
-	static final Map<List<String>, AttributeMatcher> MATCHERS_CACHE_KEY = new HashMap<List<String>, AttributeMatcher>();
-	static final Map<List<String>, AttributeMatcher> MATCHERS_CACHE_VALUE = new HashMap<List<String>, AttributeMatcher>();
+	static final Map<List<String>, AttributeMatcher> MATCHERS_CACHE_KEY = new HashMap<>();
+	static final Map<List<String>, AttributeMatcher> MATCHERS_CACHE_VALUE = new HashMap<>();
 
 	String cat;
 	final ClosedMatcher closedMatcher;
@@ -88,12 +88,12 @@ abstract class Rule {
 	void matchWay(RenderCallback renderCallback, PolylineContainer way, Tile tile, Closed closed,
 			List<RenderInstruction> matchingList) {
 		if (matchesWay(way.getTags(), tile.zoomLevel, closed)) {
-			for (int i = 0, n = this.renderInstructions.size(); i < n; ++i) {
-				this.renderInstructions.get(i).renderWay(renderCallback, way);
-				matchingList.add(this.renderInstructions.get(i));
+			for (RenderInstruction renderInstruction : this.renderInstructions) {
+				renderInstruction.renderWay(renderCallback, way);
+				matchingList.add(renderInstruction);
 			}
-			for (int i = 0, n = this.subRules.size(); i < n; ++i) {
-				this.subRules.get(i).matchWay(renderCallback, way, tile, closed, matchingList);
+			for (Rule subRule : this.subRules) {
+				subRule.matchWay(renderCallback, way, tile, closed, matchingList);
 			}
 		}
 	}
@@ -104,26 +104,26 @@ abstract class Rule {
 
 		this.renderInstructions.trimToSize();
 		this.subRules.trimToSize();
-		for (int i = 0, n = this.subRules.size(); i < n; ++i) {
-			this.subRules.get(i).onComplete();
+		for (Rule subRule : this.subRules) {
+			subRule.onComplete();
 		}
 	}
 
 	void scaleStrokeWidth(float scaleFactor) {
-		for (int i = 0, n = this.renderInstructions.size(); i < n; ++i) {
-			this.renderInstructions.get(i).scaleStrokeWidth(scaleFactor);
+		for (RenderInstruction renderInstruction : this.renderInstructions) {
+			renderInstruction.scaleStrokeWidth(scaleFactor);
 		}
-		for (int i = 0, n = this.subRules.size(); i < n; ++i) {
-			this.subRules.get(i).scaleStrokeWidth(scaleFactor);
+		for (Rule subRule : this.subRules) {
+			subRule.scaleStrokeWidth(scaleFactor);
 		}
 	}
 
 	void scaleTextSize(float scaleFactor) {
-		for (int i = 0, n = this.renderInstructions.size(); i < n; ++i) {
-			this.renderInstructions.get(i).scaleTextSize(scaleFactor);
+		for (RenderInstruction renderInstruction : this.renderInstructions) {
+			renderInstruction.scaleTextSize(scaleFactor);
 		}
-		for (int i = 0, n = this.subRules.size(); i < n; ++i) {
-			this.subRules.get(i).scaleTextSize(scaleFactor);
+		for (Rule subRule : this.subRules) {
+			subRule.scaleTextSize(scaleFactor);
 		}
 	}
 }
