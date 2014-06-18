@@ -14,13 +14,13 @@
  */
 package org.mapsforge.map.rendertheme.rule;
 
-import java.util.Stack;
+import java.util.Deque;
 import java.util.logging.Logger;
 
 final class RuleOptimizer {
 	private static final Logger LOGGER = Logger.getLogger(RuleOptimizer.class.getName());
 
-	static AttributeMatcher optimize(AttributeMatcher attributeMatcher, Stack<Rule> ruleStack) {
+	static AttributeMatcher optimize(AttributeMatcher attributeMatcher, Deque<Rule> ruleStack) {
 		if (attributeMatcher instanceof AnyMatcher || attributeMatcher instanceof NegativeMatcher) {
 			return attributeMatcher;
 		} else if (attributeMatcher instanceof KeyMatcher) {
@@ -32,15 +32,15 @@ final class RuleOptimizer {
 		throw new IllegalArgumentException("unknown AttributeMatcher: " + attributeMatcher);
 	}
 
-	static ClosedMatcher optimize(ClosedMatcher closedMatcher, Stack<Rule> ruleStack) {
+	static ClosedMatcher optimize(ClosedMatcher closedMatcher, Deque<Rule> ruleStack) {
 		if (closedMatcher instanceof AnyMatcher) {
 			return closedMatcher;
 		}
 
-		for (int i = 0, n = ruleStack.size(); i < n; ++i) {
-			if (ruleStack.get(i).closedMatcher.isCoveredBy(closedMatcher)) {
+		for (Rule aRuleStack : ruleStack) {
+			if (aRuleStack.closedMatcher.isCoveredBy(closedMatcher)) {
 				return AnyMatcher.INSTANCE;
-			} else if (!closedMatcher.isCoveredBy(ruleStack.get(i).closedMatcher)) {
+			} else if (!closedMatcher.isCoveredBy(aRuleStack.closedMatcher)) {
 				LOGGER.warning("unreachable rule (closed)");
 			}
 		}
@@ -48,13 +48,12 @@ final class RuleOptimizer {
 		return closedMatcher;
 	}
 
-	static ElementMatcher optimize(ElementMatcher elementMatcher, Stack<Rule> ruleStack) {
+	static ElementMatcher optimize(ElementMatcher elementMatcher, Deque<Rule> ruleStack) {
 		if (elementMatcher instanceof AnyMatcher) {
 			return elementMatcher;
 		}
 
-		for (int i = 0, n = ruleStack.size(); i < n; ++i) {
-			Rule rule = ruleStack.get(i);
+		for (Rule rule : ruleStack) {
 			if (rule.elementMatcher.isCoveredBy(elementMatcher)) {
 				return AnyMatcher.INSTANCE;
 			} else if (!elementMatcher.isCoveredBy(rule.elementMatcher)) {
@@ -65,10 +64,10 @@ final class RuleOptimizer {
 		return elementMatcher;
 	}
 
-	private static AttributeMatcher optimizeKeyMatcher(AttributeMatcher attributeMatcher, Stack<Rule> ruleStack) {
-		for (int i = 0, n = ruleStack.size(); i < n; ++i) {
-			if (ruleStack.get(i) instanceof PositiveRule) {
-				PositiveRule positiveRule = (PositiveRule) ruleStack.get(i);
+	private static AttributeMatcher optimizeKeyMatcher(AttributeMatcher attributeMatcher, Deque<Rule> ruleStack) {
+		for (Rule rule : ruleStack) {
+			if (rule instanceof PositiveRule) {
+				PositiveRule positiveRule = (PositiveRule) rule;
 				if (positiveRule.keyMatcher.isCoveredBy(attributeMatcher)) {
 					return AnyMatcher.INSTANCE;
 				}
@@ -78,10 +77,10 @@ final class RuleOptimizer {
 		return attributeMatcher;
 	}
 
-	private static AttributeMatcher optimizeValueMatcher(AttributeMatcher attributeMatcher, Stack<Rule> ruleStack) {
-		for (int i = 0, n = ruleStack.size(); i < n; ++i) {
-			if (ruleStack.get(i) instanceof PositiveRule) {
-				PositiveRule positiveRule = (PositiveRule) ruleStack.get(i);
+	private static AttributeMatcher optimizeValueMatcher(AttributeMatcher attributeMatcher, Deque<Rule> ruleStack) {
+		for (Rule rule : ruleStack) {
+			if (rule instanceof PositiveRule) {
+				PositiveRule positiveRule = (PositiveRule) rule;
 				if (positiveRule.valueMatcher.isCoveredBy(attributeMatcher)) {
 					return AnyMatcher.INSTANCE;
 				}

@@ -18,6 +18,8 @@ package org.mapsforge.map.rendertheme.rule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Stack;
@@ -78,15 +80,15 @@ public final class RenderThemeHandler {
 	private Set<String> categories;
 	private Rule currentRule;
 	private final DisplayModel displayModel;
-	private final Stack<Element> elementStack = new Stack<Element>();
+	private final Stack<Element> elementStack = new Stack<>();
 	private final GraphicFactory graphicFactory;
 	private int level;
 	private final XmlPullParser pullParser;
 	private String qName;
 	private final String relativePathPrefix;
 	private RenderTheme renderTheme;
-	private final Stack<Rule> ruleStack = new Stack<Rule>();
-	private HashMap<String, Symbol> symbols = new HashMap<String, Symbol>();
+	private final Deque<Rule> ruleStack = new ArrayDeque<>();
+	private HashMap<String, Symbol> symbols = new HashMap<>();
 	private final XmlRenderTheme xmlRenderTheme;
 	private XmlRenderThemeStyleMenu renderThemeStyleMenu;
 	private XmlRenderThemeStyleLayer currentLayer;
@@ -135,13 +137,13 @@ public final class RenderThemeHandler {
 		this.elementStack.pop();
 
 		if (ELEMENT_NAME_RULE.equals(qName)) {
-			this.ruleStack.pop();
-			if (this.ruleStack.empty()) {
+			this.ruleStack.removeFirst();
+			if (this.ruleStack.isEmpty()) {
 				if (isVisible(this.currentRule)) {
 					this.renderTheme.addRule(this.currentRule);
 				}
 			} else {
-				this.currentRule = this.ruleStack.peek();
+				this.currentRule = this.ruleStack.peekFirst();
 			}
 		}
 		else if ("stylemenu".equals(qName)) {
@@ -169,13 +171,11 @@ public final class RenderThemeHandler {
 			else if (ELEMENT_NAME_RULE.equals(qName)) {
 				checkState(qName, Element.RULE);
 				Rule rule = new RuleBuilder(qName, pullParser, this.ruleStack).build();
-				if (!this.ruleStack.empty()) {
-					if (isVisible(rule)) {
-						this.currentRule.addSubRule(rule);
-					}
+				if (!this.ruleStack.isEmpty() && isVisible(rule)) {
+					this.currentRule.addSubRule(rule);
 				}
 				this.currentRule = rule;
-				this.ruleStack.push(this.currentRule);
+				this.ruleStack.addFirst(this.currentRule);
 			}
 
 			else if ("area".equals(qName)) {

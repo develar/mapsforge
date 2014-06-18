@@ -16,9 +16,9 @@ package org.mapsforge.map.rendertheme.rule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
-import java.util.Stack;
 import java.util.regex.Pattern;
 
 import org.mapsforge.map.rendertheme.XmlUtils;
@@ -102,11 +102,11 @@ public class RuleBuilder {
 	private Element element;
 	private List<String> keyList;
 	private String keys;
-	private final Stack<Rule> ruleStack;
+	private final Deque<Rule> ruleStack;
 	private List<String> valueList;
 	private String values;
 
-	public RuleBuilder(String elementName, XmlPullParser pullParser, Stack<Rule> ruleStack) throws XmlPullParserException{
+	public RuleBuilder(String elementName, XmlPullParser pullParser, Deque<Rule> ruleStack) throws XmlPullParserException{
 		this.ruleStack = ruleStack;
 
 		this.closed = Closed.ANY;
@@ -160,8 +160,8 @@ public class RuleBuilder {
 
 		validate(elementName);
 
-		this.keyList = new ArrayList<String>(Arrays.asList(SPLIT_PATTERN.split(this.keys)));
-		this.valueList = new ArrayList<String>(Arrays.asList(SPLIT_PATTERN.split(this.values)));
+		this.keyList = new ArrayList<>(Arrays.asList(SPLIT_PATTERN.split(this.keys)));
+		this.valueList = new ArrayList<>(Arrays.asList(SPLIT_PATTERN.split(this.values)));
 
 		this.elementMatcher = getElementMatcher(this.element);
 		this.closedMatcher = getClosedMatcher(this.closed);
