@@ -16,6 +16,7 @@ package org.mapsforge.map.rendertheme.rule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mapsforge.core.model.Tile;
@@ -35,20 +36,26 @@ public class RenderTheme {
 	private final float baseTextSize;
 	private int levels;
 	private final int mapBackground;
-	private final LRUCache<MatchingCacheKey, List<RenderInstruction>> wayMatchingCache;
-	private final LRUCache<MatchingCacheKey, List<RenderInstruction>> poiMatchingCache;
+	private final Map<MatchingCacheKey, List<RenderInstruction>> wayMatchingCache;
+	private final Map<MatchingCacheKey, List<RenderInstruction>> poiMatchingCache;
 	private final AtomicInteger refCount = new AtomicInteger();
 	private final ArrayList<Rule> rulesList; // NOPMD we need specific interface
 	private float textScale;
 	private float strokeWidthScale;
 
-	RenderTheme(RenderThemeBuilder renderThemeBuilder) {
+	public RenderTheme(RenderThemeBuilder renderThemeBuilder) {
+		this(renderThemeBuilder, new LRUCache<MatchingCacheKey, List<RenderInstruction>>(MATCHING_CACHE_SIZE), new LRUCache<MatchingCacheKey, List<RenderInstruction>>(MATCHING_CACHE_SIZE));
+	}
+
+	public RenderTheme(RenderThemeBuilder renderThemeBuilder,
+					   Map<MatchingCacheKey, List<RenderInstruction>> poiMatchingCache,
+					   Map<MatchingCacheKey, List<RenderInstruction>> wayMatchingCache) {
 		this.baseStrokeWidth = renderThemeBuilder.baseStrokeWidth;
 		this.baseTextSize = renderThemeBuilder.baseTextSize;
 		this.mapBackground = renderThemeBuilder.mapBackground;
 		this.rulesList = new ArrayList<>();
-		this.poiMatchingCache = new LRUCache<>(MATCHING_CACHE_SIZE);
-		this.wayMatchingCache = new LRUCache<>(MATCHING_CACHE_SIZE);
+		this.poiMatchingCache = poiMatchingCache;
+		this.wayMatchingCache = wayMatchingCache;
 	}
 
 	/**

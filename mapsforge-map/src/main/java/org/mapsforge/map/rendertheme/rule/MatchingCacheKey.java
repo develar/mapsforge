@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.mapsforge.core.model.Tag;
 
-class MatchingCacheKey {
+public class MatchingCacheKey {
 	private final Closed closed;
 	private final List<Tag> tags;
 	private final Set<Tag> tagsWithoutName;

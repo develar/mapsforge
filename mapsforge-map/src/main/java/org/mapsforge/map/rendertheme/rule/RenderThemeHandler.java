@@ -56,12 +56,26 @@ public final class RenderThemeHandler {
 	private static final String ELEMENT_NAME_RULE = "rule";
 	private static final String UNEXPECTED_ELEMENT = "unexpected element: ";
 
+	public static interface RenderThemeFactory {
+		RenderTheme create(RenderThemeBuilder renderThemeBuilder);
+	}
+
 	public static RenderTheme getRenderTheme(GraphicFactory graphicFactory, DisplayModel displayModel,
-			XmlRenderTheme xmlRenderTheme) throws IOException, XmlPullParserException {
+				XmlRenderTheme xmlRenderTheme) throws IOException, XmlPullParserException {
+		return getRenderTheme(graphicFactory, displayModel, xmlRenderTheme, new RenderThemeFactory() {
+			@Override
+			public RenderTheme create(RenderThemeBuilder renderThemeBuilder) {
+				return renderThemeBuilder.build();
+			}
+		});
+	}
+
+	public static RenderTheme getRenderTheme(GraphicFactory graphicFactory, DisplayModel displayModel,
+			XmlRenderTheme xmlRenderTheme, RenderThemeFactory renderThemeFactory) throws IOException, XmlPullParserException {
 		XmlPullParser pullParser = new KXmlParser();
 
 		RenderThemeHandler renderThemeHandler = new RenderThemeHandler(graphicFactory, displayModel,
-				xmlRenderTheme.getRelativePathPrefix(), xmlRenderTheme, pullParser);
+				xmlRenderTheme.getRelativePathPrefix(), xmlRenderTheme, pullParser, renderThemeFactory);
 		InputStream inputStream = null;
 		try {
 			inputStream = xmlRenderTheme.getRenderThemeAsStream();
@@ -90,17 +104,19 @@ public final class RenderThemeHandler {
 	private final Deque<Rule> ruleStack = new ArrayDeque<>();
 	private HashMap<String, Symbol> symbols = new HashMap<>();
 	private final XmlRenderTheme xmlRenderTheme;
+	private final RenderThemeFactory renderThemeFactory;
 	private XmlRenderThemeStyleMenu renderThemeStyleMenu;
 	private XmlRenderThemeStyleLayer currentLayer;
 
 	private RenderThemeHandler(GraphicFactory graphicFactory, DisplayModel displayModel, String relativePathPrefix,
-	                           XmlRenderTheme xmlRenderTheme, XmlPullParser pullParser) {
+							   XmlRenderTheme xmlRenderTheme, XmlPullParser pullParser, RenderThemeFactory renderThemeFactory) {
 		super();
 		this.pullParser = pullParser;
 		this.graphicFactory = graphicFactory;
 		this.displayModel = displayModel;
 		this.relativePathPrefix = relativePathPrefix;
 		this.xmlRenderTheme = xmlRenderTheme;
+		this.renderThemeFactory = renderThemeFactory;
 	}
 
 
@@ -165,7 +181,7 @@ public final class RenderThemeHandler {
 		try {
 			if ("rendertheme".equals(qName)) {
 				checkState(qName, Element.RENDER_THEME);
-				this.renderTheme = new RenderThemeBuilder(this.graphicFactory, qName, pullParser).build();
+				this.renderTheme = renderThemeFactory.create(new RenderThemeBuilder(this.graphicFactory, qName, pullParser));
 			}
 
 			else if (ELEMENT_NAME_RULE.equals(qName)) {
