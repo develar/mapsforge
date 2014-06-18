@@ -75,12 +75,12 @@ abstract class Rule {
 	void matchNode(RenderCallback renderCallback, PointOfInterest pointOfInterest, Tile tile,
 	               List<RenderInstruction> matchingList ) {
 		if (matchesNode(pointOfInterest.tags, tile.zoomLevel)) {
-			for (int i = 0, n = this.renderInstructions.size(); i < n; ++i) {
-				this.renderInstructions.get(i).renderNode(renderCallback, pointOfInterest, tile);
-				matchingList.add(this.renderInstructions.get(i));
+			for (RenderInstruction renderInstruction : this.renderInstructions) {
+				renderInstruction.renderNode(renderCallback, pointOfInterest, tile);
+				matchingList.add(renderInstruction);
 			}
-			for (int i = 0, n = this.subRules.size(); i < n; ++i) {
-				this.subRules.get(i).matchNode(renderCallback, pointOfInterest, tile, matchingList);
+			for (Rule subRule : this.subRules) {
+				subRule.matchNode(renderCallback, pointOfInterest, tile, matchingList);
 			}
 		}
 	}
