@@ -34,7 +34,7 @@ import org.mapsforge.core.graphics.Join;
 import org.mapsforge.core.graphics.Paint;
 import org.mapsforge.core.graphics.Style;
 
-class AwtPaint implements Paint {
+public class AwtPaint implements Paint {
 	private static int getCap(Cap cap) {
 		switch (cap) {
 			case BUTT:
@@ -92,19 +92,19 @@ class AwtPaint implements Paint {
 
 
 	java.awt.Color color;
-	Font font;
+	protected Font font;
 	Stroke stroke;
 	Style style;
 	TexturePaint texturePaint;
 	private int cap;
-	private String fontName;
-	private int fontStyle;
+	protected String fontName;
+	protected int fontStyle;
 	private int join;
 	private float[] strokeDasharray;
 	private float strokeWidth;
-	private float textSize;
+	protected float textSize;
 
-	AwtPaint() {
+	protected AwtPaint() {
 		this.cap = getCap(Cap.ROUND);
 		this.color = java.awt.Color.BLACK;
 		this.style = Style.FILL;
@@ -193,7 +193,7 @@ class AwtPaint implements Paint {
 		createFont();
 	}
 
-	private void createFont() {
+	protected void createFont() {
 		if (this.textSize > 0) {
 			this.font = new Font(this.fontName, this.fontStyle, (int) this.textSize);
 		} else {

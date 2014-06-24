@@ -18,7 +18,7 @@ import java.awt.geom.AffineTransform;
 
 import org.mapsforge.core.graphics.Matrix;
 
-class AwtMatrix implements Matrix {
+public class AwtMatrix implements Matrix {
 	final AffineTransform affineTransform = new AffineTransform();
 
 	@Override
