@@ -58,11 +58,7 @@ public class WayTextContainer extends MapElementContainer {
 
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(super.toString());
-		stringBuilder.append(", text=");
-		stringBuilder.append(this.text);
-		return stringBuilder.toString();
+		return super.toString() + ", text=" + this.text;
 	}
 
 }
