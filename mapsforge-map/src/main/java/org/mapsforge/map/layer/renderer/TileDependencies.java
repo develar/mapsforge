@@ -1,12 +1,12 @@
 package org.mapsforge.map.layer.renderer;
 
-import org.mapsforge.core.mapelements.MapElementContainer;
-import org.mapsforge.core.model.Tile;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.mapsforge.core.mapelements.MapElementContainer;
+import org.mapsforge.core.model.Tile;
 
 /**
  * The TileDependecies class tracks the dependencies between tiles for labels.
@@ -23,7 +23,7 @@ public class TileDependencies {
 	Map<Tile, Map<Tile, Set<MapElementContainer>>> overlapData;
 
 	TileDependencies() {
-		overlapData = new HashMap<Tile, Map<Tile, Set<MapElementContainer>>>();
+		overlapData = new HashMap<>();
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class TileDependencies {
 		if (overlapData.containsKey(from) && overlapData.get(from).containsKey(to)) {
 			return overlapData.get(from).get(to);
 		}
-		return new HashSet<MapElementContainer>(0);
+		return new HashSet<>(0);
 	}
 
 	/**
