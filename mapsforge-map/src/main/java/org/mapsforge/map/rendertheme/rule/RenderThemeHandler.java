@@ -50,7 +50,7 @@ import org.xmlpull.v1.*;
 public final class RenderThemeHandler {
 
 	private static enum Element {
-		RENDER_THEME, RENDERING_INSTRUCTION, RULE, RENDERING_STYLE;
+		RENDER_THEME, RENDERING_INSTRUCTION, RULE, RENDERING_STYLE
 	}
 	private static final Logger LOGGER = Logger.getLogger(RenderThemeHandler.class.getName());
 	private static final String ELEMENT_NAME_RULE = "rule";
@@ -123,14 +123,19 @@ public final class RenderThemeHandler {
 	public void processRenderTheme() throws XmlPullParserException, IOException {
 		int eventType = pullParser.getEventType();
 		do {
-			if(eventType == XmlPullParser.START_DOCUMENT) {
-				// no-op
-			} else if(eventType == XmlPullParser.START_TAG) {
-				startElement();
-			} else if(eventType == XmlPullParser.END_TAG) {
-				endElement();
-			} else if(eventType == XmlPullParser.TEXT) {
-				// not implemented
+			switch (eventType) {
+				case XmlPullParser.START_DOCUMENT:
+					// no-op
+					break;
+				case XmlPullParser.START_TAG:
+					startElement();
+					break;
+				case XmlPullParser.END_TAG:
+					endElement();
+					break;
+				case XmlPullParser.TEXT:
+					// not implemented
+					break;
 			}
 			eventType = pullParser.next();
 		} while (eventType != XmlPullParser.END_DOCUMENT);
@@ -179,137 +184,127 @@ public final class RenderThemeHandler {
 		qName = pullParser.getName();
 
 		try {
-			if ("rendertheme".equals(qName)) {
-				checkState(qName, Element.RENDER_THEME);
-				this.renderTheme = renderThemeFactory.create(new RenderThemeBuilder(this.graphicFactory, qName, pullParser));
-			}
+			switch (qName) {
+				case "rendertheme":
+					checkState(qName, Element.RENDER_THEME);
+					this.renderTheme = renderThemeFactory.create(new RenderThemeBuilder(this.graphicFactory, qName, pullParser));
+					break;
+				case ELEMENT_NAME_RULE:
+					checkState(qName, Element.RULE);
+					Rule rule = new RuleBuilder(qName, pullParser, this.ruleStack).build();
+					if (!this.ruleStack.isEmpty() && isVisible(rule)) {
+						this.currentRule.addSubRule(rule);
+					}
+					this.currentRule = rule;
+					this.ruleStack.addFirst(this.currentRule);
+					break;
+				case "area":
+					checkState(qName, Element.RENDERING_INSTRUCTION);
+					Area area = new Area(this.graphicFactory, this.displayModel, qName, pullParser, this.level++,
+							this.relativePathPrefix);
+					if (isVisible(area)) {
+						this.currentRule.addRenderingInstruction(area);
+					}
+					break;
+				case "caption":
+					checkState(qName, Element.RENDERING_INSTRUCTION);
+					Caption caption = new Caption(this.graphicFactory, this.displayModel, qName, pullParser, symbols);
+					if (isVisible(caption)) {
+						this.currentRule.addRenderingInstruction(caption);
+					}
+					break;
+				case "cat":
+					checkState(qName, Element.RENDERING_STYLE);
+					this.currentLayer.addCategory(getStringAttribute("id"));
+					break;
+				case "circle":
+					checkState(qName, Element.RENDERING_INSTRUCTION);
+					Circle circle = new Circle(this.graphicFactory, this.displayModel, qName, pullParser,
+							this.level++);
+					if (isVisible(circle)) {
+						this.currentRule.addRenderingInstruction(circle);
+					}
+					break;
 
-			else if (ELEMENT_NAME_RULE.equals(qName)) {
-				checkState(qName, Element.RULE);
-				Rule rule = new RuleBuilder(qName, pullParser, this.ruleStack).build();
-				if (!this.ruleStack.isEmpty() && isVisible(rule)) {
-					this.currentRule.addSubRule(rule);
-				}
-				this.currentRule = rule;
-				this.ruleStack.addFirst(this.currentRule);
-			}
-
-			else if ("area".equals(qName)) {
-				checkState(qName, Element.RENDERING_INSTRUCTION);
-				Area area = new Area(this.graphicFactory, this.displayModel, qName, pullParser, this.level++,
-						this.relativePathPrefix);
-				if (isVisible(area)) {
-					this.currentRule.addRenderingInstruction(area);
-				}
-			}
-
-			else if ("caption".equals(qName)) {
-				checkState(qName, Element.RENDERING_INSTRUCTION);
-				Caption caption = new Caption(this.graphicFactory, this.displayModel, qName, pullParser, symbols);
-				if (isVisible(caption)) {
-					this.currentRule.addRenderingInstruction(caption);
-				}
-			}
-
-			else if ("cat".equals(qName)) {
-				checkState(qName, Element.RENDERING_STYLE);
-				this.currentLayer.addCategory(getStringAttribute("id"));
-			}
-
-			else if ("circle".equals(qName)) {
-				checkState(qName, Element.RENDERING_INSTRUCTION);
-				Circle circle = new Circle(this.graphicFactory, this.displayModel, qName, pullParser,
-						this.level++);
-				if (isVisible(circle)) {
-					this.currentRule.addRenderingInstruction(circle);
-				}
-			}
-
-			// rendertheme menu layer
-			else if ("layer".equals(qName)) {
-				checkState(qName, Element.RENDERING_STYLE);
-				boolean enabled = false;
-				if (getStringAttribute("enabled") != null) {
-					enabled = Boolean.valueOf(getStringAttribute("enabled"));
-				}
-				boolean visible = Boolean.valueOf(getStringAttribute("visible"));
-				this.currentLayer = this.renderThemeStyleMenu.createLayer(getStringAttribute("id"), visible, enabled);
-				String parent = getStringAttribute("parent");
-				if (null != parent) {
-					XmlRenderThemeStyleLayer parentEntry = this.renderThemeStyleMenu.getLayer(parent);
-					if (null != parentEntry) {
-						for (String cat : parentEntry.getCategories()) {
-							this.currentLayer.addCategory(cat);
-						}
-						for (XmlRenderThemeStyleLayer overlay : parentEntry.getOverlays()) {
-							this.currentLayer.addOverlay(overlay);
+				// rendertheme menu layer
+				case "layer":
+					checkState(qName, Element.RENDERING_STYLE);
+					boolean enabled = false;
+					if (getStringAttribute("enabled") != null) {
+						enabled = Boolean.valueOf(getStringAttribute("enabled"));
+					}
+					boolean visible = Boolean.valueOf(getStringAttribute("visible"));
+					this.currentLayer = this.renderThemeStyleMenu.createLayer(getStringAttribute("id"), visible, enabled);
+					String parent = getStringAttribute("parent");
+					if (null != parent) {
+						XmlRenderThemeStyleLayer parentEntry = this.renderThemeStyleMenu.getLayer(parent);
+						if (null != parentEntry) {
+							for (String cat : parentEntry.getCategories()) {
+								this.currentLayer.addCategory(cat);
+							}
+							for (XmlRenderThemeStyleLayer overlay : parentEntry.getOverlays()) {
+								this.currentLayer.addOverlay(overlay);
+							}
 						}
 					}
-				}
-			}
+					break;
+				case "line":
+					checkState(qName, Element.RENDERING_INSTRUCTION);
+					Line line = new Line(this.graphicFactory, this.displayModel, qName, pullParser, this.level++,
+							this.relativePathPrefix);
+					if (isVisible(line)) {
+						this.currentRule.addRenderingInstruction(line);
+					}
+					break;
+				case "lineSymbol":
+					checkState(qName, Element.RENDERING_INSTRUCTION);
+					LineSymbol lineSymbol = new LineSymbol(this.graphicFactory, this.displayModel, qName,
+							pullParser, this.relativePathPrefix);
+					if (isVisible(lineSymbol)) {
+						this.currentRule.addRenderingInstruction(lineSymbol);
+					}
+					break;
 
-			else if ("line".equals(qName)) {
-				checkState(qName, Element.RENDERING_INSTRUCTION);
-				Line line = new Line(this.graphicFactory, this.displayModel, qName, pullParser, this.level++,
-						this.relativePathPrefix);
-				if (isVisible(line)) {
-					this.currentRule.addRenderingInstruction(line);
-				}
-			}
+				// render theme menu name
+				case "name":
+					checkState(qName, Element.RENDERING_STYLE);
+					this.currentLayer.addTranslation(getStringAttribute("lang"), getStringAttribute("value"));
+					break;
 
-			else if ("lineSymbol".equals(qName)) {
-				checkState(qName, Element.RENDERING_INSTRUCTION);
-				LineSymbol lineSymbol = new LineSymbol(this.graphicFactory, this.displayModel, qName,
-						pullParser, this.relativePathPrefix);
-				if (isVisible(lineSymbol)) {
-					this.currentRule.addRenderingInstruction(lineSymbol);
-				}
-			}
+				// render theme menu overlay
+				case "overlay":
+					checkState(qName, Element.RENDERING_STYLE);
+					XmlRenderThemeStyleLayer overlay = this.renderThemeStyleMenu.getLayer(getStringAttribute("id"));
+					if (overlay != null) {
+						this.currentLayer.addOverlay(overlay);
+					}
+					break;
+				case "pathText":
+					checkState(qName, Element.RENDERING_INSTRUCTION);
+					PathText pathText = new PathText(this.graphicFactory, this.displayModel, qName, pullParser);
+					if (isVisible(pathText)) {
+						this.currentRule.addRenderingInstruction(pathText);
+					}
+					break;
+				case "stylemenu":
+					checkState(qName, Element.RENDERING_STYLE);
 
-			// render theme menu name
-			else if ("name".equals(qName)) {
-				checkState(qName, Element.RENDERING_STYLE);
-				this.currentLayer.addTranslation(getStringAttribute("lang"), getStringAttribute("value"));
-			}
-
-			// render theme menu overlay
-			else if ("overlay".equals(qName)) {
-				checkState(qName, Element.RENDERING_STYLE);
-				XmlRenderThemeStyleLayer overlay = this.renderThemeStyleMenu.getLayer(getStringAttribute("id"));
-				if (overlay != null) {
-					this.currentLayer.addOverlay(overlay);
-				}
-			}
-
-			else if ("pathText".equals(qName)) {
-				checkState(qName, Element.RENDERING_INSTRUCTION);
-				PathText pathText = new PathText(this.graphicFactory, this.displayModel, qName, pullParser);
-				if (isVisible(pathText)) {
-					this.currentRule.addRenderingInstruction(pathText);
-				}
-			}
-
-			else if ("stylemenu".equals(qName)) {
-				checkState(qName, Element.RENDERING_STYLE);
-
-				this.renderThemeStyleMenu =
-						new XmlRenderThemeStyleMenu(getStringAttribute("id"),
-								getStringAttribute("defaultlang"), getStringAttribute("defaultvalue"));
-			}
-
-			else if ("symbol".equals(qName)) {
-				checkState(qName, Element.RENDERING_INSTRUCTION);
-				Symbol symbol = new Symbol(this.graphicFactory, this.displayModel, qName, pullParser,
-						this.relativePathPrefix);
-				this.currentRule.addRenderingInstruction(symbol);
-				String symbolId = symbol.getId();
-				if (symbolId != null) {
-					this.symbols.put(symbolId, symbol);
-				}
-			}
-
-			else {
-				throw new XmlPullParserException("unknown element: " + qName);
+					this.renderThemeStyleMenu =
+							new XmlRenderThemeStyleMenu(getStringAttribute("id"),
+									getStringAttribute("defaultlang"), getStringAttribute("defaultvalue"));
+					break;
+				case "symbol":
+					checkState(qName, Element.RENDERING_INSTRUCTION);
+					Symbol symbol = new Symbol(this.graphicFactory, this.displayModel, qName, pullParser,
+							this.relativePathPrefix);
+					this.currentRule.addRenderingInstruction(symbol);
+					String symbolId = symbol.getId();
+					if (symbolId != null) {
+						this.symbols.put(symbolId, symbol);
+					}
+					break;
+				default:
+					throw new XmlPullParserException("unknown element: " + qName);
 			}
 		} catch (IOException e) {
 			LOGGER.warning("Rendertheme missing or invalid resource " + e.getMessage());
