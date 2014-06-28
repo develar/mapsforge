@@ -15,6 +15,8 @@
  */
 package org.mapsforge.map.rendertheme.renderinstruction;
 
+import java.util.Locale;
+
 import org.mapsforge.core.graphics.Align;
 import org.mapsforge.core.graphics.Color;
 import org.mapsforge.core.graphics.FontFamily;
@@ -30,8 +32,6 @@ import org.mapsforge.map.rendertheme.RenderCallback;
 import org.mapsforge.map.rendertheme.XmlUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
-import java.util.Locale;
 
 /**
  * Represents a text along a polyline on the map.
@@ -99,28 +99,39 @@ public class PathText extends RenderInstruction {
 			String name = pullParser.getAttributeName(i);
 			String value = pullParser.getAttributeValue(i);
 
-			if (K.equals(name)) {
-				this.textKey = TextKey.getInstance(value);
-			} else if (CAT.equals(name)) {
-				this.category = value;
-			} else if (DY.equals(name)) {
-				this.dy = Float.parseFloat(value) * displayModel.getScaleFactor();
-			} else if (FONT_FAMILY.equals(name)) {
-				fontFamily = FontFamily.valueOf(value.toUpperCase(Locale.ENGLISH));
-			} else if (FONT_STYLE.equals(name)) {
-				fontStyle = FontStyle.valueOf(value.toUpperCase(Locale.ENGLISH));
-			} else if (FONT_SIZE.equals(name)) {
-				this.fontSize = XmlUtils.parseNonNegativeFloat(name, value) * displayModel.getScaleFactor();
-			} else if (FILL.equals(name)) {
-				this.fill.setColor(XmlUtils.getColor(graphicFactory, value));
-			} else if (PRIORITY.equals(name)) {
-				this.priority = Integer.parseInt(value);
-			} else if (STROKE.equals(name)) {
-				this.stroke.setColor(XmlUtils.getColor(graphicFactory, value));
-			} else if (STROKE_WIDTH.equals(name)) {
-				this.stroke.setStrokeWidth(XmlUtils.parseNonNegativeFloat(name, value) * displayModel.getScaleFactor());
-			} else {
-				throw XmlUtils.createXmlPullParserException(elementName, name, value, i);
+			switch (name) {
+				case K:
+					this.textKey = TextKey.getInstance(value);
+					break;
+				case CAT:
+					this.category = value;
+					break;
+				case DY:
+					this.dy = Float.parseFloat(value) * displayModel.getScaleFactor();
+					break;
+				case FONT_FAMILY:
+					fontFamily = FontFamily.valueOf(value.toUpperCase(Locale.ENGLISH));
+					break;
+				case FONT_STYLE:
+					fontStyle = FontStyle.valueOf(value.toUpperCase(Locale.ENGLISH));
+					break;
+				case FONT_SIZE:
+					this.fontSize = XmlUtils.parseNonNegativeFloat(name, value) * displayModel.getScaleFactor();
+					break;
+				case FILL:
+					this.fill.setColor(XmlUtils.getColor(graphicFactory, value));
+					break;
+				case PRIORITY:
+					this.priority = Integer.parseInt(value);
+					break;
+				case STROKE:
+					this.stroke.setColor(XmlUtils.getColor(graphicFactory, value));
+					break;
+				case STROKE_WIDTH:
+					this.stroke.setStrokeWidth(XmlUtils.parseNonNegativeFloat(name, value) * displayModel.getScaleFactor());
+					break;
+				default:
+					throw XmlUtils.createXmlPullParserException(elementName, name, value, i);
 			}
 		}
 
