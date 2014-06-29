@@ -15,8 +15,6 @@
  */
 package org.mapsforge.map.rendertheme.renderinstruction;
 
-import java.util.List;
-
 import org.mapsforge.core.graphics.Color;
 import org.mapsforge.core.graphics.GraphicFactory;
 import org.mapsforge.core.graphics.Paint;
@@ -101,7 +99,7 @@ public class Circle extends RenderInstruction {
 			String value = pullParser.getAttributeValue(i);
 
 			if (RADIUS.equals(name) || (XmlUtils.supportOlderRenderThemes && R.equals(name))) {
-				this.radius = Float.valueOf(XmlUtils.parseNonNegativeFloat(name, value)) * displayModel.getScaleFactor();
+				this.radius = XmlUtils.parseNonNegativeFloat(name, value) * displayModel.getScaleFactor();
 			} else if (SCALE_RADIUS.equals(name)) {
 				this.scaleRadius = Boolean.parseBoolean(value);
 			} else if (CAT.equals(name)) {
