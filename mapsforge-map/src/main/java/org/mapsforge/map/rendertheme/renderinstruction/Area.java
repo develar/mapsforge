@@ -77,26 +77,36 @@ public class Area extends RenderInstruction {
 			String name = pullParser.getAttributeName(i);
 			String value = pullParser.getAttributeValue(i);
 
-			if (SRC.equals(name)) {
-				this.src = value;
-			} else if (CAT.equals(name)) {
-				this.category = value;
-			} else if (FILL.equals(name)) {
-				this.fill.setColor(XmlUtils.getColor(graphicFactory, value));
-			} else if (STROKE.equals(name)) {
-				this.stroke.setColor(XmlUtils.getColor(graphicFactory, value));
-			} else if (SYMBOL_HEIGHT.equals(name)) {
-				this.height = XmlUtils.parseNonNegativeInteger(name, value) * displayModel.getScaleFactor();
-			} else if (SYMBOL_PERCENT.equals(name)) {
-				this.percent = XmlUtils.parseNonNegativeInteger(name, value);
-			} else if (SYMBOL_SCALING.equals(name)) {
-				this.scaling = fromValue(value);
-			} else if (SYMBOL_WIDTH.equals(name)) {
-				this.width = XmlUtils.parseNonNegativeInteger(name, value) * displayModel.getScaleFactor();
-			} else if (STROKE_WIDTH.equals(name)) {
-				this.strokeWidth = XmlUtils.parseNonNegativeFloat(name, value) * displayModel.getScaleFactor();
-			} else {
-				throw XmlUtils.createXmlPullParserException(elementName, name, value, i);
+			switch (name) {
+				case SRC:
+					this.src = value;
+					break;
+				case CAT:
+					this.category = value;
+					break;
+				case FILL:
+					this.fill.setColor(XmlUtils.getColor(graphicFactory, value));
+					break;
+				case STROKE:
+					this.stroke.setColor(XmlUtils.getColor(graphicFactory, value));
+					break;
+				case SYMBOL_HEIGHT:
+					this.height = XmlUtils.parseNonNegativeInteger(name, value) * displayModel.getScaleFactor();
+					break;
+				case SYMBOL_PERCENT:
+					this.percent = XmlUtils.parseNonNegativeInteger(name, value);
+					break;
+				case SYMBOL_SCALING:
+					this.scaling = fromValue(value);
+					break;
+				case SYMBOL_WIDTH:
+					this.width = XmlUtils.parseNonNegativeInteger(name, value) * displayModel.getScaleFactor();
+					break;
+				case STROKE_WIDTH:
+					this.strokeWidth = XmlUtils.parseNonNegativeFloat(name, value) * displayModel.getScaleFactor();
+					break;
+				default:
+					throw XmlUtils.createXmlPullParserException(elementName, name, value, i);
 			}
 		}
 	}
@@ -127,9 +137,7 @@ public class Area extends RenderInstruction {
 
 	@Override
 	public void scaleStrokeWidth(float scaleFactor) {
-		if (this.stroke != null) {
-			this.stroke.setStrokeWidth(this.strokeWidth * scaleFactor);
-		}
+		this.stroke.setStrokeWidth(this.strokeWidth * scaleFactor);
 	}
 
 	@Override
