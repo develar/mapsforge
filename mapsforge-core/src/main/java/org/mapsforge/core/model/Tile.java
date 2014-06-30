@@ -15,11 +15,11 @@
  */
 package org.mapsforge.core.model;
 
-import org.mapsforge.core.util.MercatorProjection;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.mapsforge.core.util.MercatorProjection;
 
 /**
  * A tile represents a rectangular part of the world map. All tiles can be identified by their X and Y number together
@@ -118,7 +118,7 @@ public class Tile implements Serializable {
 	 * @return neighbour tiles as a set
 	 */
 	public Set<Tile> getNeighbours() {
-		Set<Tile> neighbours = new HashSet<Tile>(8);
+		Set<Tile> neighbours = new HashSet<>(8);
 		neighbours.add(getLeft());
 		neighbours.add(getAboveLeft());
 		neighbours.add(getAbove());
@@ -144,8 +144,8 @@ public class Tile implements Serializable {
 	 */
 	public Point getOrigin() {
 		if (this.origin == null) {
-			double x = MercatorProjection.tileToPixel(this.tileX, this.tileSize);
-			double y = MercatorProjection.tileToPixel(this.tileY, this.tileSize);
+			int x = MercatorProjection.tileToPixel(this.tileX, this.tileSize);
+			int y = MercatorProjection.tileToPixel(this.tileY, this.tileSize);
 			this.origin = new Point(x, y);
 		}
 		return this.origin;
@@ -273,8 +273,8 @@ public class Tile implements Serializable {
 	@Override
 	public int hashCode() {
 		int result = 7;
-		result = 31 * result + (int) (this.tileX ^ (this.tileX >>> 16));
-		result = 31 * result + (int) (this.tileY ^ (this.tileY >>> 16));
+		result = 31 * result + (this.tileX ^ (this.tileX >>> 16));
+		result = 31 * result + (this.tileY ^ (this.tileY >>> 16));
 		result = 31 * result + this.zoomLevel;
 		result = 31 * result + this.tileSize;
 		return result;
@@ -282,13 +282,6 @@ public class Tile implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("x=");
-		stringBuilder.append(this.tileX);
-		stringBuilder.append(", y=");
-		stringBuilder.append(this.tileY);
-		stringBuilder.append(", z=");
-		stringBuilder.append(this.zoomLevel);
-		return stringBuilder.toString();
+		return "x=" + this.tileX + ", y=" + this.tileY + ", z=" + this.zoomLevel;
 	}
 }
