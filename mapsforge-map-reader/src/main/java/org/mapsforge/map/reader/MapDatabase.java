@@ -462,8 +462,8 @@ public class MapDatabase {
 		MapReadResultBuilder mapReadResultBuilder = new MapReadResultBuilder();
 
 		// read and process all blocks from top to bottom and from left to right
-		for (long row = queryParameters.fromBlockY; row <= queryParameters.toBlockY; ++row) {
-			for (long column = queryParameters.fromBlockX; column <= queryParameters.toBlockX; ++column) {
+		for (int row = queryParameters.fromBlockY; row <= queryParameters.toBlockY; ++row) {
+			for (int column = queryParameters.fromBlockX; column <= queryParameters.toBlockX; ++column) {
 				// calculate the actual block number of the needed block in the file
 				long blockNumber = row * subFileParameter.blocksWidth + column;
 
@@ -571,7 +571,7 @@ public class MapDatabase {
 	}
 
 	private List<PointOfInterest> processPOIs(int numberOfPois) {
-		List<PointOfInterest> pois = new ArrayList<PointOfInterest>();
+		List<PointOfInterest> pois = new ArrayList<>();
 		Tag[] poiTags = this.mapFileHeader.getMapFileInfo().poiTags;
 
 		for (int elementCounter = numberOfPois; elementCounter != 0; --elementCounter) {
@@ -599,7 +599,7 @@ public class MapDatabase {
 			// bit 5-8 represent the number of tag IDs
 			byte numberOfTags = (byte) (specialByte & POI_NUMBER_OF_TAGS_BITMASK);
 
-			List<Tag> tags = new ArrayList<Tag>();
+			List<Tag> tags = new ArrayList<>();
 
 			// get the tag IDs (VBE-U)
 			for (byte tagIndex = numberOfTags; tagIndex != 0; --tagIndex) {
@@ -682,7 +682,7 @@ public class MapDatabase {
 	}
 
 	private List<Way> processWays(QueryParameters queryParameters, int numberOfWays) {
-		List<Way> ways = new ArrayList<Way>();
+		List<Way> ways = new ArrayList<>();
 		Tag[] wayTags = this.mapFileHeader.getMapFileInfo().wayTags;
 
 		for (int elementCounter = numberOfWays; elementCounter != 0; --elementCounter) {
@@ -728,7 +728,7 @@ public class MapDatabase {
 			// bit 5-8 represent the number of tag IDs
 			byte numberOfTags = (byte) (specialByte & WAY_NUMBER_OF_TAGS_BITMASK);
 
-			List<Tag> tags = new ArrayList<Tag>();
+			List<Tag> tags = new ArrayList<>();
 
 			for (byte tagIndex = numberOfTags; tagIndex != 0; --tagIndex) {
 				int tagId = this.readBuffer.readUnsignedInt();

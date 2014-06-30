@@ -43,22 +43,22 @@ public class SubFileParameter {
 	/**
 	 * Y number of the tile at the bottom boundary in the grid.
 	 */
-	public final long boundaryTileBottom;
+	public final int boundaryTileBottom;
 
 	/**
 	 * X number of the tile at the left boundary in the grid.
 	 */
-	public final long boundaryTileLeft;
+	public final int boundaryTileLeft;
 
 	/**
 	 * X number of the tile at the right boundary in the grid.
 	 */
-	public final long boundaryTileRight;
+	public final int boundaryTileRight;
 
 	/**
 	 * Y number of the tile at the top boundary in the grid.
 	 */
-	public final long boundaryTileTop;
+	public final int boundaryTileTop;
 
 	/**
 	 * Absolute end address of the index in the enclosing file.

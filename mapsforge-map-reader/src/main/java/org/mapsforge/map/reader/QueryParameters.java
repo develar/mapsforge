@@ -15,10 +15,10 @@
 package org.mapsforge.map.reader;
 
 class QueryParameters {
-	long fromBaseTileX;
-	long fromBaseTileY;
-	long fromBlockX;
-	long fromBlockY;
+	int fromBaseTileX;
+	int fromBaseTileY;
+	int fromBlockX;
+	int fromBlockY;
 	int queryTileBitmask;
 	int queryZoomLevel;
 	long toBaseTileX;

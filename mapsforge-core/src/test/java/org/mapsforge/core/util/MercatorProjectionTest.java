@@ -246,7 +246,7 @@ public class MercatorProjectionTest {
 				longitude = MercatorProjection.tileXToLongitude(0, MercatorProjection.zoomLevelToScaleFactor(zoomLevel));
 				Assert.assertEquals(LatLongUtils.LONGITUDE_MIN, longitude, 0);
 
-				long tileX = MercatorProjection.getMapSize(zoomLevel, tileSize) / tileSize;
+				int tileX = MercatorProjection.getMapSize(zoomLevel, tileSize) / tileSize;
 				longitude = MercatorProjection.tileXToLongitude(tileX, zoomLevel);
 				Assert.assertEquals(LatLongUtils.LONGITUDE_MAX, longitude, 0);
 				tileX = MercatorProjection.getMapSize(MercatorProjection.zoomLevelToScaleFactor(zoomLevel), tileSize) / tileSize;
@@ -265,7 +265,7 @@ public class MercatorProjectionTest {
 				latitude = MercatorProjection.tileYToLatitude(0, MercatorProjection.zoomLevelToScaleFactor(zoomLevel));
 				Assert.assertEquals(MercatorProjection.LATITUDE_MAX, latitude, 0);
 
-				long tileY = MercatorProjection.getMapSize(zoomLevel, tileSize) / tileSize;
+				int tileY = MercatorProjection.getMapSize(zoomLevel, tileSize) / tileSize;
 				latitude = MercatorProjection.tileYToLatitude(tileY, zoomLevel);
 				Assert.assertEquals(MercatorProjection.LATITUDE_MIN, latitude, 0);
 				tileY = MercatorProjection.getMapSize(MercatorProjection.zoomLevelToScaleFactor(zoomLevel), tileSize) / tileSize;
