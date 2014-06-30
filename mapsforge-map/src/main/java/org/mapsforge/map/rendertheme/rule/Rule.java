@@ -16,7 +16,9 @@
 package org.mapsforge.map.rendertheme.rule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +30,12 @@ import org.mapsforge.map.rendertheme.RenderCallback;
 import org.mapsforge.map.rendertheme.renderinstruction.RenderInstruction;
 
 abstract class Rule {
+	private static final ArrayList<Rule> EMPTY_LIST = new ArrayList<Rule>() {
+		@Override
+		public Iterator<Rule> iterator() {
+			return Collections.emptyIterator();
+		}
+	};
 
 	static final Map<List<String>, AttributeMatcher> MATCHERS_CACHE_KEY = new HashMap<>();
 	static final Map<List<String>, AttributeMatcher> MATCHERS_CACHE_VALUE = new HashMap<>();
@@ -38,7 +46,7 @@ abstract class Rule {
 	final byte zoomMax;
 	final byte zoomMin;
 	private final ArrayList<RenderInstruction> renderInstructions; // NOPMD we need specific interface
-	private final ArrayList<Rule> subRules; // NOPMD we need specific interface
+	private ArrayList<Rule> subRules; // NOPMD we need specific interface
 
 	Rule(RuleBuilder ruleBuilder) {
 		this.cat = ruleBuilder.cat;
@@ -103,9 +111,15 @@ abstract class Rule {
 		MATCHERS_CACHE_VALUE.clear();
 
 		this.renderInstructions.trimToSize();
-		this.subRules.trimToSize();
-		for (Rule subRule : this.subRules) {
-			subRule.onComplete();
+
+		if (subRules.isEmpty()) {
+			subRules = EMPTY_LIST;
+		}
+		else {
+			this.subRules.trimToSize();
+			for (Rule subRule : this.subRules) {
+				subRule.onComplete();
+			}
 		}
 	}
 
