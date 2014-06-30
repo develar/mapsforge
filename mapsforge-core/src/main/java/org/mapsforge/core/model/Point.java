@@ -101,11 +101,6 @@ public class Point implements Comparable<Point>, Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("x=");
-		stringBuilder.append(this.x);
-		stringBuilder.append(", y=");
-		stringBuilder.append(this.y);
-		return stringBuilder.toString();
+		return "x=" + this.x + ", y=" + this.y;
 	}
 }
