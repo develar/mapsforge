@@ -122,10 +122,7 @@ public abstract class MapElementContainer implements Comparable<MapElementContai
 	 * @return true if they overlap, false if they are equal or do not overlap
 	 */
 	public boolean clashesWith(MapElementContainer other) {
-		if (this.equals(other)) {
-			return false;
-		}
-		return this.getBoundaryAbsolute().intersects(other.getBoundaryAbsolute());
+		return !this.equals(other) && this.getBoundaryAbsolute().intersects(other.getBoundaryAbsolute());
 	}
 
 	@Override
@@ -150,12 +147,7 @@ public abstract class MapElementContainer implements Comparable<MapElementContai
 
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("xy=");
-		stringBuilder.append(this.xy);
-		stringBuilder.append(", priority=");
-		stringBuilder.append(this.priority);
-		return stringBuilder.toString();
+		return "xy=" + this.xy + ", priority=" + this.priority;
 	}
 
 }
